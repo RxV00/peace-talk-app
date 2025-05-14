@@ -1,173 +1,118 @@
 
-import React, { useState } from 'react';
-import { useCoupleContext } from '../context/CoupleContext';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import RoadOfPeace from './RoadOfPeace';
+import React from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useCouple } from "../context/CoupleContext";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { toast } from "../hooks/use-toast";
+import { MessageSquare, Bell, User } from "lucide-react";
 
-const Dashboard: React.FC = () => {
-  const { 
-    currentProfile, 
-    partnerProfile,
-    alarmActive, 
-    alarmTime,
-    triggerAlarm, 
-    acknowledgeAlarm,
-    roadOfPeaceActive,
-    startRoadOfPeace,
-    logout
-  } = useCoupleContext();
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const { couple, isAuthenticated, updatePoints } = useCouple();
   
-  const { toast } = useToast();
-  const [isAlarmDialogOpen, setIsAlarmDialogOpen] = useState(false);
-  const [inputSteps, setInputSteps] = useState("20");
-  
-  if (!currentProfile || !partnerProfile) return null;
-  
-  const handleAlarmClick = () => {
-    triggerAlarm();
-    toast({
-      title: "Alarm Sent",
-      description: `You've notified ${partnerProfile.name} about an issue.`,
-      duration: 5000,
-    });
-  };
-  
-  const handlePeaceButtonClick = () => {
-    setIsAlarmDialogOpen(true);
-  };
-  
-  const startPeaceRoad = () => {
-    const steps = Math.min(parseInt(inputSteps) || 20, 20);
-    startRoadOfPeace(steps);
-    setIsAlarmDialogOpen(false);
-  };
-  
-  // Calculate time since alarm if active
-  const getTimeSinceAlarm = () => {
-    if (alarmActive && alarmTime) {
-      const minutes = Math.floor((Date.now() - alarmTime) / (1000 * 60));
-      if (minutes < 60) {
-        return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
-      } else {
-        const hours = Math.floor(minutes / 60);
-        return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''}`;
-      }
+  // Protect route
+  React.useEffect(() => {
+    if (!isAuthenticated || !couple?.activeProfileId) {
+      navigate("/profile");
     }
-    return '';
+  }, [isAuthenticated, couple, navigate]);
+  
+  // Handle alarm button
+  const handleAlarm = () => {
+    toast({
+      title: "Alarm activated",
+      description: "Your partner has been notified",
+      variant: "default",
+    });
+    // In a real app, this would trigger a push notification to the partner
   };
-
-  if (roadOfPeaceActive) {
-    return <RoadOfPeace />;
+  
+  if (!couple) {
+    return <div className="p-8 text-center">Loading dashboard...</div>;
   }
-
+  
+  // Find active profile
+  const activeProfile = couple.profiles.find(p => p.id === couple.activeProfileId);
+  const partnerProfile = couple.profiles.find(p => p.id !== couple.activeProfileId);
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-4 md:p-8">
       <div className="max-w-lg mx-auto">
-        {/* Profile Header */}
-        <div className="ios-card mb-6 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="text-4xl mr-3">{currentProfile.avatar}</div>
-            <div>
-              <h2 className="font-semibold text-lg">{currentProfile.name}</h2>
-              <div className="text-sm text-muted-foreground flex gap-2">
-                <span>💬 {currentProfile.speakingPoints}</span>
-                <span>👍 {currentProfile.likePoints}</span>
+        <header className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-12 w-12 rounded-full bg-purple-200 mr-3 flex items-center justify-center">
+                <span className="text-xl">👤</span>
               </div>
-            </div>
-          </div>
-          
-          <Button variant="outline" size="sm" onClick={logout}>
-            Log out
-          </Button>
-        </div>
-        
-        {/* Main Card */}
-        <Card className="ios-card mb-6">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-semibold">Harmony Dashboard</h1>
-            <p className="text-muted-foreground">Find peace together</p>
-          </div>
-          
-          {alarmActive ? (
-            <div className="space-y-4">
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <h3 className="text-lg font-medium text-amber-700">Alarm Active</h3>
-                <p className="text-amber-600">Time since alarm: {getTimeSinceAlarm()}</p>
-              </div>
-              
-              <Button 
-                onClick={handlePeaceButtonClick}
-                className="w-full ios-button py-6 bg-primary/80 hover:bg-primary"
-              >
-                <span className="mr-2">☮️</span>
-                <span>Start Road of Peace</span>
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <p className="text-blue-700">
-                  All is peaceful. Use the alarm button if you need to discuss something important with {partnerProfile.name}.
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Hi, {activeProfile?.name}
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Harmony Points: {couple.points}
                 </p>
               </div>
-              
-              <Button
-                onClick={handleAlarmClick}
-                className="w-full ios-button py-6 bg-red-500 hover:bg-red-600"
-              >
-                <span className="mr-2">🔔</span>
-                <span>Trigger Alarm</span>
-              </Button>
             </div>
-          )}
-        </Card>
-        
-        {/* Partner Card */}
-        <Card className="ios-card">
-          <div className="flex items-center">
-            <div className="text-3xl mr-3">{partnerProfile.avatar}</div>
-            <div>
-              <h3 className="font-medium">{partnerProfile.name}</h3>
-              <div className="text-sm text-muted-foreground flex gap-2">
-                <span>💬 {partnerProfile.speakingPoints}</span>
-                <span>👍 {partnerProfile.likePoints}</span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-      
-      {/* Steps Dialog */}
-      <Dialog open={isAlarmDialogOpen} onOpenChange={setIsAlarmDialogOpen}>
-        <DialogContent className="ios-card">
-          <DialogHeader>
-            <DialogTitle>Road of Peace Settings</DialogTitle>
-            <DialogDescription>
-              How many steps would you like on your journey to resolution? (Maximum 20)
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <input
-              type="number"
-              value={inputSteps}
-              onChange={(e) => setInputSteps(e.target.value)}
-              min="1"
-              max="20"
-              className="ios-input w-full"
-            />
-          </div>
-          
-          <div className="flex justify-end">
-            <Button onClick={startPeaceRoad} className="ios-button">
-              Begin Journey
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full"
+              onClick={() => navigate("/profile")}
+            >
+              <User size={20} />
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </header>
+        
+        <div className="mb-8">
+          <Card className="p-6 bg-red-50 border-red-200 shadow-sm">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-red-800 mb-4">
+                Need to talk?
+              </h2>
+              <p className="text-red-700 mb-6">
+                Press the alarm button to send an urgent message to {partnerProfile?.name}
+              </p>
+              <Button
+                className="bg-red-600 hover:bg-red-700 w-full h-16 rounded-full text-xl shadow-lg"
+                onClick={handleAlarm}
+              >
+                <Bell className="mr-2" size={24} />
+                Ring Alarm
+              </Button>
+              <p className="text-xs text-red-600 mt-4">
+                Use only in important situations (3 per day)
+              </p>
+            </div>
+          </Card>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4 mb-8">
+          <Link to="/road-of-peace">
+            <Card className="p-6 hover:bg-purple-50 transition-colors border-purple-200">
+              <div className="flex items-center">
+                <div className="mr-4 bg-purple-100 p-3 rounded-full">
+                  <MessageSquare size={24} className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Road of Peace</h3>
+                  <p className="text-sm text-gray-600">
+                    Work through disagreements together
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        </div>
+        
+        <div className="bg-purple-100 rounded-lg p-4 text-center mb-8">
+          <h3 className="font-semibold text-purple-800 mb-2">Daily Quote</h3>
+          <p className="text-purple-700 italic">
+            "The best relationships are not about winning arguments, but understanding each other."
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

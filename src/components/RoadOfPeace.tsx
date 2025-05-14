@@ -1,249 +1,220 @@
 
-import React, { useState } from 'react';
-import { useCoupleContext } from '../context/CoupleContext';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCouple } from "../context/CoupleContext";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Textarea } from "./ui/textarea";
+import { toast } from "../hooks/use-toast";
+import { ArrowLeft, Send, Check, ChevronDown, ChevronUp } from "lucide-react";
 
-const RoadOfPeace: React.FC = () => {
-  const {
-    currentProfile,
-    partnerProfile,
-    roadOfPeaceActive,
-    currentTurn,
-    messages,
-    maxSteps,
-    currentStep,
-    addMessage,
-    endRoadOfPeace,
-  } = useCoupleContext();
+interface Message {
+  id: string;
+  text: string;
+  profileId: string;
+  type: "message" | "apology" | "agreement";
+  timestamp: string;
+}
 
-  const [messageText, setMessageText] = useState('');
-  const [showApologyDialog, setShowApologyDialog] = useState(false);
-  const [apologyReason, setApologyReason] = useState('');
-  const [showAgreementDialog, setShowAgreementDialog] = useState(false);
+const RoadOfPeace = () => {
+  const navigate = useNavigate();
+  const { couple, isAuthenticated, updatePoints } = useCouple();
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"message" | "apology">("message");
+  const [expandedGuide, setExpandedGuide] = useState(true);
   
-  if (!currentProfile || !partnerProfile || !roadOfPeaceActive) return null;
-
-  const isMyTurn = currentProfile.id === currentTurn;
-  const progress = Math.round((currentStep / maxSteps) * 100);
+  // Demo messages
+  const [messages, setMessages] = useState<Message[]>([]);
+  
+  // Protect route
+  React.useEffect(() => {
+    if (!isAuthenticated || !couple?.activeProfileId) {
+      navigate("/profile");
+    }
+  }, [isAuthenticated, couple, navigate]);
+  
+  if (!couple) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+  
+  // Find active profile
+  const activeProfile = couple.profiles.find(p => p.id === couple.activeProfileId);
+  const partnerProfile = couple.profiles.find(p => p.id !== couple.activeProfileId);
   
   const handleSendMessage = () => {
-    if (messageText.trim() && isMyTurn) {
-      addMessage(messageText.trim());
-      setMessageText('');
+    if (!message.trim() || !couple.activeProfileId) return;
+    
+    const newMessage: Message = {
+      id: crypto.randomUUID(),
+      text: message,
+      profileId: couple.activeProfileId,
+      type: messageType,
+      timestamp: new Date().toISOString(),
+    };
+    
+    setMessages([...messages, newMessage]);
+    setMessage("");
+    
+    // Award points for communication
+    if (messageType === "apology") {
+      updatePoints(5);
+      toast({
+        title: "Apology sent",
+        description: "+5 harmony points for talking it through",
+        variant: "default",
+      });
+    } else {
+      updatePoints(1);
     }
   };
-
-  const handleApologize = () => {
-    setShowApologyDialog(true);
+  
+  const handleAgree = (messageId: string) => {
+    const agreementMessage: Message = {
+      id: crypto.randomUUID(),
+      text: "I acknowledge and accept your apology.",
+      profileId: couple.activeProfileId!,
+      type: "agreement",
+      timestamp: new Date().toISOString(),
+    };
+    
+    setMessages([...messages, agreementMessage]);
+    
+    // Award points for acceptance
+    updatePoints(10);
+    toast({
+      title: "Apology accepted",
+      description: "+10 harmony points for reconciliation",
+      variant: "default",
+    });
   };
-
-  const submitApology = () => {
-    if (apologyReason.trim() && isMyTurn) {
-      addMessage(messageText.trim() || "I apologize.", true, apologyReason);
-      setMessageText('');
-      setApologyReason('');
-      setShowApologyDialog(false);
-    }
+  
+  // Get profile name by ID
+  const getProfileName = (profileId: string) => {
+    return couple.profiles.find(p => p.id === profileId)?.name || "Unknown";
   };
-
-  const handleReachAgreement = () => {
-    setShowAgreementDialog(true);
-  };
-
-  const confirmAgreement = () => {
-    endRoadOfPeace(true);
-    setShowAgreementDialog(false);
-  };
-
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="max-w-lg mx-auto">
-        <div className="ios-card mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl font-semibold">Road of Peace</h2>
-            <div className="flex items-center text-sm">
-              <span>Step {currentStep}/{maxSteps}</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <header className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/dashboard")}
+            className="mr-2"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h1 className="text-xl font-semibold flex-1">Road of Peace</h1>
+          <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center">
+            <span className="text-sm">👤</span>
+          </div>
+        </div>
+      </header>
+      
+      <div className="max-w-lg mx-auto p-4 pb-32">
+        <Card className="mb-6 overflow-hidden">
+          <div 
+            className="flex items-center justify-between p-4 bg-purple-100 cursor-pointer"
+            onClick={() => setExpandedGuide(!expandedGuide)}
+          >
+            <h2 className="font-semibold text-purple-800">Communication Guide</h2>
+            {expandedGuide ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
           
-          <Progress value={progress} className="h-2 mb-6" />
-          
-          <div className="flex justify-center mb-6">
-            <div className="flex items-center w-full">
-              <div className="text-center flex-shrink-0">
-                <div className="text-2xl mb-1">{currentProfile.avatar}</div>
-                <div className="text-sm font-medium">{currentProfile.name}</div>
-              </div>
-              
-              <div className="grow mx-2 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-blue-200"></div>
-              
-              <div className="text-center flex-shrink-0">
-                <div className="text-2xl mb-1">{partnerProfile.avatar}</div>
-                <div className="text-sm font-medium">{partnerProfile.name}</div>
-              </div>
+          {expandedGuide && (
+            <div className="p-4">
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>• Take turns expressing your feelings</li>
+                <li>• Use "I" statements instead of "You" accusations</li>
+                <li>• Listen actively without interrupting</li>
+                <li>• Acknowledge each other's perspectives</li>
+                <li>• Focus on the problem, not the person</li>
+              </ul>
             </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 mb-6 max-h-72 overflow-auto border border-gray-100">
-            {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                <p>Your journey of resolution begins here.</p>
-                <p className="mt-2 text-sm">
-                  {
-                    currentProfile.id === currentTurn ? 
-                    "It's your turn to express your feelings." : 
-                    `Waiting for ${partnerProfile.name} to speak.`
-                  }
+          )}
+        </Card>
+        
+        <div className="space-y-4 mb-6">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.profileId === couple.activeProfileId ? 'justify-end' : 'justify-start'}`}>
+              <div 
+                className={`max-w-[80%] rounded-2xl p-3 ${
+                  msg.profileId === couple.activeProfileId 
+                    ? 'bg-purple-600 text-white rounded-tr-none' 
+                    : 'bg-gray-200 text-gray-800 rounded-tl-none'
+                } ${
+                  msg.type === 'apology' ? 'border-2 border-red-400' : ''
+                } ${
+                  msg.type === 'agreement' ? 'border-2 border-green-400' : ''
+                }`}
+              >
+                <p>{msg.text}</p>
+                <p className="text-xs mt-1 opacity-70">
+                  {getProfileName(msg.profileId)} • {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((message) => {
-                  const isCurrentUser = message.profileId === currentProfile.id;
-                  const profile = isCurrentUser ? currentProfile : partnerProfile;
-                  
-                  return (
-                    <div key={message.id} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] ${
-                        isCurrentUser 
-                          ? 'bg-primary text-primary-foreground rounded-tl-2xl rounded-tr-sm rounded-bl-2xl' 
-                          : 'bg-secondary text-secondary-foreground rounded-tl-sm rounded-tr-2xl rounded-br-2xl'
-                        } px-4 py-3`}
-                      >
-                        <div className="flex items-center mb-1">
-                          <span className="mr-1">{profile?.avatar}</span>
-                          <span className="text-sm font-medium">{profile?.name}</span>
-                          {message.isApology && (
-                            <span className="ml-1 bg-white/20 text-xs px-1 rounded">Apology</span>
-                          )}
-                        </div>
-                        <div>{message.content}</div>
-                        {message.isApology && message.apologyReason && (
-                          <div className="mt-1 text-sm bg-white/10 p-1 rounded">
-                            Reason: {message.apologyReason}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            {isMyTurn ? (
-              <>
-                <Textarea
-                  placeholder={`Express your thoughts and feelings...`}
-                  className="ios-input min-h-24"
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  disabled={!isMyTurn}
-                />
                 
-                <div className="flex gap-2">
+                {msg.type === 'apology' && msg.profileId !== couple.activeProfileId && (
                   <Button 
-                    onClick={handleSendMessage} 
-                    className="ios-button flex-1"
-                    disabled={!messageText.trim() || !isMyTurn}
+                    size="sm" 
+                    className="mt-2 bg-green-500 hover:bg-green-600"
+                    onClick={() => handleAgree(msg.id)}
                   >
-                    Send Message
+                    <Check size={14} className="mr-1" />
+                    Accept
                   </Button>
-                  
-                  <Button 
-                    onClick={handleApologize}
-                    className="ios-button bg-accent text-accent-foreground"
-                    disabled={!isMyTurn}
-                  >
-                    Apologize
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 text-center">
-                <p className="text-amber-800">
-                  {`Waiting for ${partnerProfile.name} to respond...`}
-                </p>
+                )}
               </div>
-            )}
-            
+            </div>
+          ))}
+          
+          {messages.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p>No messages yet. Start your conversation.</p>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div className="max-w-lg mx-auto">
+          <div className="flex gap-2 mb-2">
             <Button
-              onClick={handleReachAgreement}
-              className="ios-button w-full bg-emerald-500 hover:bg-emerald-600"
+              size="sm"
+              variant={messageType === "message" ? "default" : "outline"}
+              onClick={() => setMessageType("message")}
+              className={messageType === "message" ? "bg-purple-600" : ""}
             >
-              We've Reached an Agreement
+              Message
+            </Button>
+            <Button
+              size="sm"
+              variant={messageType === "apology" ? "default" : "outline"}
+              onClick={() => setMessageType("apology")}
+              className={messageType === "apology" ? "bg-red-500" : ""}
+            >
+              Apology
+            </Button>
+          </div>
+          
+          <div className="flex gap-2 items-end">
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={messageType === "apology" ? "I'm sorry for..." : `Message to ${partnerProfile?.name}`}
+              className="flex-1 resize-none"
+              rows={2}
+            />
+            <Button
+              className={`h-10 ${messageType === "apology" ? "bg-red-500" : "bg-purple-600"}`}
+              onClick={handleSendMessage}
+              disabled={!message.trim()}
+            >
+              <Send size={18} />
             </Button>
           </div>
         </div>
       </div>
-
-      {/* Apology Dialog */}
-      <Dialog open={showApologyDialog} onOpenChange={setShowApologyDialog}>
-        <DialogContent className="ios-card">
-          <DialogHeader>
-            <DialogTitle>Apologize</DialogTitle>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <p className="mb-4">
-              Please explain why you are apologizing. A sincere apology will earn you 1000 like points.
-            </p>
-            <Textarea
-              placeholder="I apologize because..."
-              value={apologyReason}
-              onChange={(e) => setApologyReason(e.target.value)}
-              className="ios-input min-h-24"
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              onClick={submitApology} 
-              className="ios-button"
-              disabled={!apologyReason.trim()}
-            >
-              Submit Apology
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Agreement Dialog */}
-      <Dialog open={showAgreementDialog} onOpenChange={setShowAgreementDialog}>
-        <DialogContent className="ios-card">
-          <DialogHeader>
-            <DialogTitle>Confirm Agreement</DialogTitle>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <p className="mb-4">
-              Are you both in agreement and ready to end the Road of Peace?
-            </p>
-            <p className="text-sm text-muted-foreground">
-              If you resolve within 30 minutes of starting, both of you will earn 500 like points.
-            </p>
-          </div>
-          
-          <DialogFooter className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAgreementDialog(false)}
-            >
-              Not Yet
-            </Button>
-            <Button 
-              onClick={confirmAgreement} 
-              className="ios-button bg-emerald-500 hover:bg-emerald-600"
-            >
-              Yes, We Agree
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

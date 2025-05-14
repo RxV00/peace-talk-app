@@ -1,50 +1,32 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CoupleProvider } from "./context/CoupleContext";
-import AppContent from "./components/AppContent";
-import SignupScreen from "./components/SignupScreen";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 import SplashScreen from "./components/SplashScreen";
-import { useState, useEffect } from "react";
+import LoginScreen from "./components/LoginScreen";
+import SignupScreen from "./components/SignupScreen";
+import ProfileSelection from "./components/ProfileSelection";
+import Dashboard from "./components/Dashboard";
+import RoadOfPeace from "./components/RoadOfPeace";
+import NotFound from "./pages/NotFound";
+import { CoupleProvider } from "./context/CoupleContext";
 
-const queryClient = new QueryClient();
-
-const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    // Hide splash screen after 2.5 seconds
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <CoupleProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            {showSplash ? (
-              <SplashScreen />
-            ) : (
-              <Routes>
-                <Route path="/" element={<AppContent />} />
-                <Route path="/signup" element={<SignupScreen />} />
-                <Route path="*" element={<AppContent />} />
-              </Routes>
-            )}
-          </BrowserRouter>
-        </CoupleProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <CoupleProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<SplashScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
+          <Route path="/profile" element={<ProfileSelection />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/road-of-peace" element={<RoadOfPeace />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+      <Toaster position="top-center" richColors />
+    </CoupleProvider>
   );
-};
+}
 
 export default App;
