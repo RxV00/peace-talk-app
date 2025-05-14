@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCouple } from "../context/CoupleContext";
 import { Button } from "./ui/button";
@@ -11,11 +11,11 @@ const ProfileSelection = () => {
   const { couple, setActiveProfile, isAuthenticated } = useCouple();
 
   // Redirect if not authenticated - only check once on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   // Handle profile selection
   const handleSelectProfile = (profileId: string) => {
@@ -25,7 +25,7 @@ const ProfileSelection = () => {
       description: "Welcome to your dashboard!",
       variant: "default",
     });
-    navigate("/dashboard");
+    navigate("/dashboard", { replace: true });
   };
 
   // Don't render anything while checking authentication
@@ -79,7 +79,7 @@ const ProfileSelection = () => {
           <Button
             onClick={() => {
               localStorage.removeItem("couple");
-              navigate("/login");
+              navigate("/login", { replace: true });
             }}
             variant="outline"
             className="text-blueTheme-dark border-blueTheme hover:bg-blueTheme-light"

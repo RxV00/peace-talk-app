@@ -7,15 +7,20 @@ const AppContent: React.FC = () => {
   const { isAuthenticated, couple } = useCouple();
   const navigate = useNavigate();
   
-  // Use useEffect to handle navigation once on component mount
+  // Handle initial navigation only once
   React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else if (!couple?.activeProfileId) {
-      navigate('/profile');
-    } else {
-      navigate('/dashboard');
-    }
+    const handleInitialNavigation = () => {
+      if (!isAuthenticated) {
+        navigate('/login', { replace: true });
+      } else if (!couple?.activeProfileId) {
+        navigate('/profile', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    };
+    
+    handleInitialNavigation();
+    // Only run once on mount, no dependencies
   }, []);
   
   // Return empty div as routing is handled by react-router
