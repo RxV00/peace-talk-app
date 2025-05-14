@@ -5,7 +5,6 @@ import { useCouple } from "../context/CoupleContext";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { toast } from "../hooks/use-toast";
-import { motion } from "framer-motion";
 
 const LoginScreen = () => {
   const navigate = useNavigate();
@@ -59,12 +58,7 @@ const LoginScreen = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purple-100 to-purple-200 px-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl"
-      >
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
           <p className="text-gray-600">Sign in to continue your journey</p>
@@ -121,7 +115,7 @@ const LoginScreen = () => {
             Create one now
           </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

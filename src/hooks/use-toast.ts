@@ -1,8 +1,5 @@
 
-// This file is required to maintain compatibility with existing components
-// but we'll implement Swift native notifications
-
-import { toast as sonnerToast } from "sonner";
+import { toast as sonnerToast, type Toast } from "sonner";
 
 type ToastProps = {
   title?: string;
@@ -18,9 +15,13 @@ export const toast = ({ title, description, variant }: ToastProps) => {
 };
 
 export const useToast = () => {
+  // Create a mock toasts array to satisfy the Toaster component
+  const toasts: Toast[] = [];
+  
   return {
     toast: ({ title, description, variant }: ToastProps) => {
       toast({ title, description, variant });
     },
+    toasts,
   };
 };

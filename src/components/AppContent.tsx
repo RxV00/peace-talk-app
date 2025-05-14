@@ -1,15 +1,16 @@
 
 import React from 'react';
-import { useCoupleContext } from '../context/CoupleContext';
+import { useCouple } from '../context/CoupleContext';
 import LoginScreen from './LoginScreen';
 import ProfileSelection from './ProfileSelection';
 import Dashboard from './Dashboard';
 
 const AppContent: React.FC = () => {
-  const { isLoggedIn, currentProfile } = useCoupleContext();
+  const { isAuthenticated, couple } = useCouple();
+  const currentProfile = couple?.activeProfileId ? couple : null;
   
   // Show login screen if not logged in
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <LoginScreen />;
   }
   
