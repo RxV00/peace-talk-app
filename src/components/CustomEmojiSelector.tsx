@@ -3,8 +3,15 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Smile, User, Palette } from "lucide-react";
 
 const DEFAULT_EMOJIS = ["😊", "😢", "😡", "😍", "🥳", "😎", "🤔", "😂", "❤️", "👍"];
+
+// Emoji customization options
+const SKIN_TONES = ["", "🏻", "🏼", "🏽", "🏾", "🏿"];
+const HAIR_STYLES = ["👱", "👨", "👩", "🧑", "👴", "👵", "🧓"];
+const FACE_EXPRESSIONS = ["😊", "😄", "😁", "🙂", "😍", "😎", "🤔"];
 
 export type CustomEmoji = {
   id: string;
@@ -25,6 +32,12 @@ const CustomEmojiSelector: React.FC<CustomEmojiSelectorProps> = ({
   const [newEmojiText, setNewEmojiText] = useState("");
   const [newEmojiName, setNewEmojiName] = useState("");
   const [showCustomForm, setShowCustomForm] = useState(false);
+  
+  // Custom emoji builder state
+  const [selectedSkinTone, setSelectedSkinTone] = useState("");
+  const [selectedHairStyle, setSelectedHairStyle] = useState("");
+  const [selectedExpression, setSelectedExpression] = useState("🙂");
+  const [customEmojiPreview, setCustomEmojiPreview] = useState("🙂");
 
   // Check if an emoji is selected
   const isSelected = (emoji: string | CustomEmoji) => {
@@ -35,6 +48,15 @@ const CustomEmojiSelector: React.FC<CustomEmojiSelectorProps> = ({
     }
     return false;
   };
+
+  // Update the emoji preview whenever components change
+  React.useEffect(() => {
+    // This is a simplified representation as actual emoji composition is complex
+    // In a real app, we would use proper emoji composition techniques
+    const newEmoji = selectedHairStyle + selectedSkinTone + selectedExpression;
+    setCustomEmojiPreview(newEmoji);
+    setNewEmojiText(newEmoji);
+  }, [selectedSkinTone, selectedHairStyle, selectedExpression]);
 
   // Create a new custom emoji
   const handleCreateEmoji = () => {
@@ -90,18 +112,79 @@ const CustomEmojiSelector: React.FC<CustomEmojiSelectorProps> = ({
             )}
 
             {showCustomForm ? (
-              <div className="custom-emoji-creator space-y-3">
-                <div>
-                  <label className="text-xs text-blueTheme-dark mb-1 block">Emoji</label>
-                  <Input
-                    value={newEmojiText}
-                    onChange={(e) => setNewEmojiText(e.target.value)}
-                    placeholder="Enter emoji or text"
-                    className="blue-gui-input"
-                  />
+              <div className="custom-emoji-creator space-y-4">
+                <div className="text-center mb-4">
+                  <div className="text-5xl mb-2">{customEmojiPreview}</div>
+                  <p className="text-xs text-gray-500">Emoji Preview</p>
                 </div>
+                
+                <Tabs defaultValue="components" className="w-full">
+                  <TabsList className="grid grid-cols-3">
+                    <TabsTrigger value="components" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>Base</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="skin" className="flex items-center gap-2">
+                      <Palette className="h-4 w-4" />
+                      <span>Skin</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="expression" className="flex items-center gap-2">
+                      <Smile className="h-4 w-4" />
+                      <span>Face</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="components" className="pt-3">
+                    <div className="grid grid-cols-4 gap-2">
+                      {HAIR_STYLES.map((style) => (
+                        <button
+                          key={style}
+                          className={`h-10 rounded-md border-2 flex items-center justify-center ${
+                            selectedHairStyle === style ? "border-blueTheme-dark bg-blueTheme-light/20" : "border-transparent hover:bg-blueTheme-light/10"
+                          }`}
+                          onClick={() => setSelectedHairStyle(style)}
+                        >
+                          <span className="text-xl">{style}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="skin" className="pt-3">
+                    <div className="flex justify-between items-center">
+                      {SKIN_TONES.map((tone, index) => (
+                        <button
+                          key={index}
+                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                            selectedSkinTone === tone ? "border-blueTheme-dark" : "border-transparent"
+                          }`}
+                          onClick={() => setSelectedSkinTone(tone)}
+                        >
+                          <span className="text-xl">{tone ? `👍${tone}` : "👍"}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="expression" className="pt-3">
+                    <div className="grid grid-cols-4 gap-2">
+                      {FACE_EXPRESSIONS.map((expression) => (
+                        <button
+                          key={expression}
+                          className={`h-10 rounded-md border-2 flex items-center justify-center ${
+                            selectedExpression === expression ? "border-blueTheme-dark bg-blueTheme-light/20" : "border-transparent hover:bg-blueTheme-light/10"
+                          }`}
+                          onClick={() => setSelectedExpression(expression)}
+                        >
+                          <span className="text-xl">{expression}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
                 <div>
-                  <label className="text-xs text-blueTheme-dark mb-1 block">Name</label>
+                  <label className="text-xs text-blueTheme-dark mb-1 block">Emoji Name</label>
                   <Input
                     value={newEmojiName}
                     onChange={(e) => setNewEmojiName(e.target.value)}
@@ -109,6 +192,7 @@ const CustomEmojiSelector: React.FC<CustomEmojiSelectorProps> = ({
                     className="blue-gui-input"
                   />
                 </div>
+                
                 <div className="flex space-x-2">
                   <Button
                     onClick={handleCreateEmoji}

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCouple } from "../context/CoupleContext";
@@ -7,7 +6,6 @@ import { Input } from "./ui/input";
 import { toast } from "../hooks/use-toast";
 import { motion } from "framer-motion";
 import CustomEmojiSelector from "./CustomEmojiSelector";
-import CustomEmojiCreator from "./CustomEmojiCreator";
 
 const SignupScreen = () => {
   const navigate = useNavigate();
@@ -24,7 +22,6 @@ const SignupScreen = () => {
   const [profile2Avatar, setProfile2Avatar] = useState("👤");
   const [loading, setLoading] = useState(false);
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
-  const [showEmojiCreator, setShowEmojiCreator] = useState(false);
   const [activeProfile, setActiveProfile] = useState<1|2>(1);
 
   // Handle account creation
@@ -95,15 +92,6 @@ const SignupScreen = () => {
     setShowEmojiSelector(false);
   };
 
-  const handleEmojiCreate = (emoji: string) => {
-    if (activeProfile === 1) {
-      setProfile1Avatar(emoji);
-    } else {
-      setProfile2Avatar(emoji);
-    }
-    setShowEmojiCreator(false);
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purpleTheme-light to-white px-4">
       <motion.div
@@ -125,38 +113,12 @@ const SignupScreen = () => {
               onSelectEmoji={handleEmojiSelect}
               selectedEmoji={activeProfile === 1 ? profile1Avatar : profile2Avatar}
             />
-            <div className="flex space-x-2 mt-4">
-              <Button 
-                className="flex-1 bg-purpleTheme hover:bg-purpleTheme-hover text-white"
-                onClick={() => {
-                  setShowEmojiSelector(false);
-                  setShowEmojiCreator(true);
-                }}
-              >
-                Create Custom
-              </Button>
-              <Button 
-                className="flex-1"
-                variant="outline"
-                onClick={() => setShowEmojiSelector(false)}
-              >
-                Done
-              </Button>
-            </div>
-          </div>
-        ) : showEmojiCreator ? (
-          <div className="mb-6">
-            <CustomEmojiCreator 
-              onEmojiCreate={handleEmojiCreate}
-              initialEmoji={activeProfile === 1 ? profile1Avatar : profile2Avatar}
-              activeProfile={activeProfile}
-            />
             <Button 
               className="w-full mt-4"
               variant="outline"
-              onClick={() => setShowEmojiCreator(false)}
+              onClick={() => setShowEmojiSelector(false)}
             >
-              Back
+              Back to Profile
             </Button>
           </div>
         ) : (
@@ -283,7 +245,7 @@ const SignupScreen = () => {
           </form>
         )}
 
-        {step === 1 && !showEmojiSelector && !showEmojiCreator && (
+        {step === 1 && !showEmojiSelector && (
           <div className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <Link to="/login" className="font-medium text-purpleTheme hover:text-purpleTheme-hover">
@@ -292,7 +254,7 @@ const SignupScreen = () => {
           </div>
         )}
         
-        {step === 2 && !showEmojiSelector && !showEmojiCreator && (
+        {step === 2 && !showEmojiSelector && (
           <div className="mt-6 text-center text-sm text-gray-600">
             <button
               type="button"
