@@ -22,6 +22,9 @@ const Dashboard = () => {
   
   // Handle alarm button
   const handleAlarm = () => {
+    // Set a session storage flag to indicate alarm was triggered
+    sessionStorage.setItem("alarmTriggered", "true");
+    
     toast({
       title: "Alarm activated",
       description: "Your partner has been notified",

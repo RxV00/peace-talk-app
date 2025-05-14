@@ -1,12 +1,14 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCouple } from "../context/CoupleContext";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 import { toast } from "../hooks/use-toast";
-import { ArrowLeft, Send, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Send, Check, ChevronDown, ChevronUp, AlertCircle, Smile } from "lucide-react";
+import CustomEmojiSelector from "./CustomEmojiSelector";
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 
 interface Message {
   id: string;
@@ -14,6 +16,7 @@ interface Message {
   profileId: string;
   type: "message" | "apology" | "agreement";
   timestamp: string;
+  emoji?: string;
 }
 
 const RoadOfPeace = () => {
@@ -22,12 +25,28 @@ const RoadOfPeace = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"message" | "apology">("message");
   const [expandedGuide, setExpandedGuide] = useState(true);
+  const [alarmTriggered, setAlarmTriggered] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   
   // Demo messages
   const [messages, setMessages] = useState<Message[]>([]);
   
+  // Check if alarm was triggered
+  useEffect(() => {
+    const wasAlarmTriggered = sessionStorage.getItem("alarmTriggered") === "true";
+    setAlarmTriggered(wasAlarmTriggered);
+    
+    if (!wasAlarmTriggered) {
+      toast({
+        title: "Message Locked",
+        description: "You need to trigger the alarm from the dashboard first",
+        variant: "destructive",
+      });
+    }
+  }, []);
+  
   // Protect route
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated || !couple?.activeProfileId) {
       navigate("/profile");
     }
@@ -42,7 +61,7 @@ const RoadOfPeace = () => {
   const partnerProfile = couple.profiles.find(p => p.id !== couple.activeProfileId);
   
   const handleSendMessage = () => {
-    if (!message.trim() || !couple.activeProfileId) return;
+    if (!message.trim() || !couple.activeProfileId || !alarmTriggered) return;
     
     const newMessage: Message = {
       id: crypto.randomUUID(),
@@ -50,10 +69,12 @@ const RoadOfPeace = () => {
       profileId: couple.activeProfileId,
       type: messageType,
       timestamp: new Date().toISOString(),
+      emoji: selectedEmoji || undefined
     };
     
     setMessages([...messages, newMessage]);
     setMessage("");
+    setSelectedEmoji(null);
     
     // Award points for communication
     if (messageType === "apology") {
@@ -113,6 +134,28 @@ const RoadOfPeace = () => {
       </header>
       
       <div className="max-w-lg mx-auto p-4 pb-32">
+        {!alarmTriggered && (
+          <Card className="mb-6 bg-red-50 border-red-200">
+            <div className="p-4 flex items-center">
+              <AlertCircle className="text-red-500 mr-2" size={20} />
+              <div>
+                <h3 className="font-medium text-red-800">Communication Locked</h3>
+                <p className="text-sm text-red-700">
+                  Return to dashboard and trigger the alarm to enable messaging.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 text-red-700 border-red-300"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Go to Dashboard
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+        
         <Card className="mb-6 overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 bg-purple-100 cursor-pointer"
@@ -149,6 +192,7 @@ const RoadOfPeace = () => {
                   msg.type === 'agreement' ? 'border-2 border-green-400' : ''
                 }`}
               >
+                {msg.emoji && <div className="text-lg mb-1">{msg.emoji}</div>}
                 <p>{msg.text}</p>
                 <p className="text-xs mt-1 opacity-70">
                   {getProfileName(msg.profileId)} • {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -184,6 +228,7 @@ const RoadOfPeace = () => {
               variant={messageType === "message" ? "default" : "outline"}
               onClick={() => setMessageType("message")}
               className={messageType === "message" ? "bg-purple-600" : ""}
+              disabled={!alarmTriggered}
             >
               Message
             </Button>
@@ -192,26 +237,63 @@ const RoadOfPeace = () => {
               variant={messageType === "apology" ? "default" : "outline"}
               onClick={() => setMessageType("apology")}
               className={messageType === "apology" ? "bg-red-500" : ""}
+              disabled={!alarmTriggered}
             >
               Apology
             </Button>
+            {selectedEmoji && (
+              <div className="flex-1 text-right">
+                <span className="inline-block bg-purple-100 text-lg p-1 rounded-full">
+                  {selectedEmoji}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex gap-2 items-end">
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder={messageType === "apology" ? "I'm sorry for..." : `Message to ${partnerProfile?.name}`}
+              placeholder={!alarmTriggered ? "Alarm not triggered" : messageType === "apology" ? "I'm sorry for..." : `Message to ${partnerProfile?.name}`}
               className="flex-1 resize-none"
               rows={2}
+              disabled={!alarmTriggered}
             />
-            <Button
-              className={`h-10 ${messageType === "apology" ? "bg-red-500" : "bg-purple-600"}`}
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
-            >
-              <Send size={18} />
-            </Button>
+            
+            <div className="flex flex-col gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="bg-purple-50"
+                    disabled={!alarmTriggered}
+                  >
+                    <Smile size={20} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0">
+                  <CustomEmojiSelector 
+                    onSelectEmoji={(emoji) => {
+                      if (typeof emoji === 'string') {
+                        setSelectedEmoji(emoji);
+                      } else {
+                        setSelectedEmoji(emoji.emoji);
+                      }
+                    }}
+                    selectedEmoji={selectedEmoji || undefined}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Button
+                className={`h-10 ${messageType === "apology" ? "bg-red-500" : "bg-purple-600"}`}
+                onClick={handleSendMessage}
+                disabled={!message.trim() || !alarmTriggered}
+              >
+                <Send size={18} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
