@@ -28,7 +28,7 @@ const SplashScreen = () => {
   }, [animationComplete, isAuthenticated, loading, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-purple-100 to-purple-200">
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blueTheme-light to-white">
       <div className="text-center">
         <div className="mb-6">
           <svg
@@ -41,7 +41,7 @@ const SplashScreen = () => {
           >
             <path
               d="M50 12.5C29.8 12.5 13.5 28.8 13.5 49C13.5 69.2 29.8 85.5 50 85.5C70.2 85.5 86.5 69.2 86.5 49C86.5 28.8 70.2 12.5 50 12.5Z"
-              fill="#9B87F5"
+              fill="#1EAEDB"
             />
             <path
               d="M65 35C65 41.6 59.6 47 53 47C46.4 47 41 41.6 41 35C41 28.4 46.4 23 53 23C59.6 23 65 28.4 65 35Z"
@@ -61,10 +61,10 @@ const SplashScreen = () => {
             />
           </svg>
         </div>
-        <h1 className="text-4xl font-bold text-purple-800 mb-2 animate-fade-in">
+        <h1 className="text-4xl font-bold text-blueTheme-dark mb-2 animate-fade-in">
           Peace Talk
         </h1>
-        <p className="text-purple-600 animate-fade-in">
+        <p className="text-blueTheme animate-fade-in">
           Build harmony together
         </p>
       </div>

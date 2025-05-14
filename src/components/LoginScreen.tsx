@@ -19,7 +19,7 @@ const LoginScreen = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/profile");
     }
   }, [isAuthenticated, navigate]);
 
@@ -40,6 +40,8 @@ const LoginScreen = () => {
           description: "Welcome back to Peace Talk",
           variant: "default" 
         });
+        
+        // Use navigate instead of changing window.location to prevent page refresh
         navigate("/profile");
       } else {
         toast({ 
