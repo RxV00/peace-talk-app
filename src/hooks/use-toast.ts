@@ -1,5 +1,5 @@
 
-import { toast as sonnerToast, type Toast } from "sonner";
+import { toast as sonnerToast, type ToastT } from "sonner";
 
 type ToastProps = {
   title?: string;
@@ -16,7 +16,7 @@ export const toast = ({ title, description, variant }: ToastProps) => {
 
 export const useToast = () => {
   // Create a mock toasts array to satisfy the Toaster component
-  const toasts: Toast[] = [];
+  const toasts: ToastT[] = [];
   
   return {
     toast: ({ title, description, variant }: ToastProps) => {
