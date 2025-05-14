@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCouple } from "../context/CoupleContext";
@@ -16,7 +15,7 @@ const LoginScreen = () => {
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState("👤");
 
-  // Redirect if already logged in
+  // Redirect if already logged in - only check once on component mount
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate("/profile");
@@ -29,7 +28,6 @@ const LoginScreen = () => {
     
     try {
       // Simulate login
-      // In a real app, we would connect to Firebase Auth
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const storedCouple = localStorage.getItem("couple");
@@ -41,7 +39,7 @@ const LoginScreen = () => {
           variant: "default" 
         });
         
-        // Use navigate instead of changing window.location to prevent page refresh
+        // Navigate to profile selection
         navigate("/profile");
       } else {
         toast({ 

@@ -10,7 +10,7 @@ const ProfileSelection = () => {
   const navigate = useNavigate();
   const { couple, setActiveProfile, isAuthenticated } = useCouple();
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated - only check once on component mount
   React.useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -28,6 +28,7 @@ const ProfileSelection = () => {
     navigate("/dashboard");
   };
 
+  // Don't render anything while checking authentication
   if (!couple) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blueTheme-light to-white">
@@ -76,7 +77,10 @@ const ProfileSelection = () => {
 
         <div className="mt-8 text-center">
           <Button
-            onClick={() => navigate("/login")}
+            onClick={() => {
+              localStorage.removeItem("couple");
+              navigate("/login");
+            }}
             variant="outline"
             className="text-blueTheme-dark border-blueTheme hover:bg-blueTheme-light"
           >
