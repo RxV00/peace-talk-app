@@ -18,6 +18,11 @@ type Message = {
   apologyReason?: string;
 };
 
+type NewProfileInput = {
+  name: string;
+  avatar: string;
+};
+
 type CoupleContextType = {
   isLoggedIn: boolean;
   currentProfile: Profile | null;
@@ -38,27 +43,10 @@ type CoupleContextType = {
   addMessage: (content: string, isApology?: boolean, apologyReason?: string) => void;
   endRoadOfPeace: (resolved: boolean) => void;
   logout: () => void;
+  registerCouple: (password: string, profiles: NewProfileInput[]) => boolean;
 };
 
 const CoupleContext = createContext<CoupleContextType | undefined>(undefined);
-
-// Sample couple data
-const COUPLE_PROFILES: Profile[] = [
-  {
-    id: 'profile1',
-    name: 'Alex',
-    avatar: '👨‍🦱',
-    speakingPoints: 5,
-    likePoints: 1500,
-  },
-  {
-    id: 'profile2',
-    name: 'Jordan',
-    avatar: '👩‍🦰',
-    speakingPoints: 5,
-    likePoints: 1500,
-  },
-];
 
 // Password for the demo
 const COUPLE_PASSWORD = 'love123';
@@ -66,7 +54,7 @@ const COUPLE_PASSWORD = 'love123';
 export const CoupleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
-  const [profiles, setProfiles] = useState<Profile[]>(COUPLE_PROFILES);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [alarmActive, setAlarmActive] = useState(false);
   const [alarmTime, setAlarmTime] = useState<number | null>(null);
   const [roadOfPeaceActive, setRoadOfPeaceActive] = useState(false);
@@ -75,6 +63,46 @@ export const CoupleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [maxSteps, setMaxSteps] = useState(20);
   const [currentStep, setCurrentStep] = useState(0);
   const [alarmSender, setAlarmSender] = useState<string | null>(null);
+  const [storedPassword, setStoredPassword] = useState(COUPLE_PASSWORD);
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const savedProfiles = localStorage.getItem('coupleProfiles');
+    const savedPassword = localStorage.getItem('couplePassword');
+    
+    if (savedProfiles) {
+      setProfiles(JSON.parse(savedProfiles));
+    } else {
+      // Default profiles if none are saved
+      setProfiles([
+        {
+          id: 'profile1',
+          name: 'Alex',
+          avatar: '👨‍🦱',
+          speakingPoints: 5,
+          likePoints: 1500,
+        },
+        {
+          id: 'profile2',
+          name: 'Jordan',
+          avatar: '👩‍🦰',
+          speakingPoints: 5,
+          likePoints: 1500,
+        },
+      ]);
+    }
+    
+    if (savedPassword) {
+      setStoredPassword(savedPassword);
+    }
+  }, []);
+
+  // Save profiles to localStorage whenever they change
+  useEffect(() => {
+    if (profiles.length > 0) {
+      localStorage.setItem('coupleProfiles', JSON.stringify(profiles));
+    }
+  }, [profiles]);
 
   // Get the partner profile based on current profile
   const partnerProfile = currentProfile 
@@ -83,11 +111,34 @@ export const CoupleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Handle login
   const login = (password: string) => {
-    if (password === COUPLE_PASSWORD) {
+    if (password === storedPassword) {
       setIsLoggedIn(true);
       return true;
     }
     return false;
+  };
+
+  // Handle couple registration
+  const registerCouple = (password: string, newProfiles: NewProfileInput[]) => {
+    if (password.length < 6 || newProfiles.length !== 2) {
+      return false;
+    }
+
+    const formattedProfiles: Profile[] = newProfiles.map((profile, index) => ({
+      id: `profile${index + 1}`,
+      name: profile.name,
+      avatar: profile.avatar,
+      speakingPoints: 5,
+      likePoints: 1500,
+    }));
+
+    setProfiles(formattedProfiles);
+    setStoredPassword(password);
+    localStorage.setItem('couplePassword', password);
+    
+    // Auto login after registration
+    setIsLoggedIn(true);
+    return true;
   };
 
   // Select a profile after login
@@ -248,6 +299,7 @@ export const CoupleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         addMessage,
         endRoadOfPeace,
         logout,
+        registerCouple,
       }}
     >
       {children}

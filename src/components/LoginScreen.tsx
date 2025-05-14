@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCoupleContext } from '../context/CoupleContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ const LoginScreen: React.FC = () => {
   const [showError, setShowError] = useState(false);
   const { login } = useCoupleContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +32,14 @@ const LoginScreen: React.FC = () => {
     }
   };
 
+  const handleSignup = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate("/signup");
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="ios-card max-w-md w-full mx-4">
+      <div className="ios-card max-w-md w-full mx-4 animate-fade-in">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold mb-2">Couple's Harmony</h1>
           <p className="text-muted-foreground">Sign in to your shared couple account</p>
@@ -68,8 +75,21 @@ const LoginScreen: React.FC = () => {
           </div>
         </form>
         
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Hint: Try "love123" as the password for this demo</p>
+        <div className="mt-6 text-center text-sm">
+          <p className="text-muted-foreground mb-4">
+            Don't have an account yet?{" "}
+            <a 
+              href="/signup"
+              onClick={handleSignup}
+              className="text-primary hover:underline"
+            >
+              Create a couple account
+            </a>
+          </p>
+          
+          <p className="text-muted-foreground">
+            Hint: Try "love123" as the password for this demo
+          </p>
         </div>
       </div>
     </div>
