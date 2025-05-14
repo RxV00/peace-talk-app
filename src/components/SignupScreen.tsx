@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { toast } from "../hooks/use-toast";
 import { motion } from "framer-motion";
 import CustomEmojiSelector from "./CustomEmojiSelector";
+import CustomEmojiCreator from "./CustomEmojiCreator";
 
 const SignupScreen = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const SignupScreen = () => {
   const [profile2Avatar, setProfile2Avatar] = useState("👤");
   const [loading, setLoading] = useState(false);
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
+  const [showEmojiCreator, setShowEmojiCreator] = useState(false);
   const [activeProfile, setActiveProfile] = useState<1|2>(1);
 
   // Handle account creation
@@ -93,16 +95,25 @@ const SignupScreen = () => {
     setShowEmojiSelector(false);
   };
 
+  const handleEmojiCreate = (emoji: string) => {
+    if (activeProfile === 1) {
+      setProfile1Avatar(emoji);
+    } else {
+      setProfile2Avatar(emoji);
+    }
+    setShowEmojiCreator(false);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blueTheme-light to-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purpleTheme-light to-white px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-blueTheme-medium/30"
+        className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-purpleTheme-medium/30"
       >
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blueTheme-dark mb-2">Create Account</h1>
+          <h1 className="text-3xl font-bold text-purpleTheme-dark mb-2">Create Account</h1>
           <p className="text-gray-600">
             {step === 1 ? "Step 1: Account Details" : "Step 2: Profile Setup"}
           </p>
@@ -114,11 +125,38 @@ const SignupScreen = () => {
               onSelectEmoji={handleEmojiSelect}
               selectedEmoji={activeProfile === 1 ? profile1Avatar : profile2Avatar}
             />
+            <div className="flex space-x-2 mt-4">
+              <Button 
+                className="flex-1 bg-purpleTheme hover:bg-purpleTheme-hover text-white"
+                onClick={() => {
+                  setShowEmojiSelector(false);
+                  setShowEmojiCreator(true);
+                }}
+              >
+                Create Custom
+              </Button>
+              <Button 
+                className="flex-1"
+                variant="outline"
+                onClick={() => setShowEmojiSelector(false)}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        ) : showEmojiCreator ? (
+          <div className="mb-6">
+            <CustomEmojiCreator 
+              onEmojiCreate={handleEmojiCreate}
+              initialEmoji={activeProfile === 1 ? profile1Avatar : profile2Avatar}
+              activeProfile={activeProfile}
+            />
             <Button 
-              className="w-full mt-4 blue-gui-button"
-              onClick={() => setShowEmojiSelector(false)}
+              className="w-full mt-4"
+              variant="outline"
+              onClick={() => setShowEmojiCreator(false)}
             >
-              Done
+              Back
             </Button>
           </div>
         ) : (
@@ -174,9 +212,9 @@ const SignupScreen = () => {
             ) : (
               <>
                 <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-blueTheme-dark mb-4">Partner 1</h2>
+                  <h2 className="text-lg font-semibold text-purpleTheme-dark mb-4">Partner 1</h2>
                   <div className="space-y-2">
-                    <label htmlFor="profile1Name" className="text-sm font-medium text-blueTheme-dark">
+                    <label htmlFor="profile1Name" className="text-sm font-medium text-purpleTheme-dark">
                       Name
                     </label>
                     <Input
@@ -185,12 +223,12 @@ const SignupScreen = () => {
                       value={profile1Name}
                       onChange={(e) => setProfile1Name(e.target.value)}
                       required
-                      className="blue-gui-input w-full"
+                      className="border-purpleTheme-medium/50 focus:border-purpleTheme focus:ring-purpleTheme w-full"
                     />
                   </div>
                   <div className="mt-2 flex justify-center">
                     <div 
-                      className="h-16 w-16 rounded-full bg-blueTheme-light border-2 border-blueTheme flex items-center justify-center cursor-pointer"
+                      className="h-16 w-16 rounded-full bg-purpleTheme-light border-2 border-purpleTheme flex items-center justify-center cursor-pointer"
                       onClick={() => {
                         setActiveProfile(1);
                         setShowEmojiSelector(true);
@@ -202,9 +240,9 @@ const SignupScreen = () => {
                 </div>
 
                 <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-blueTheme-dark mb-4">Partner 2</h2>
+                  <h2 className="text-lg font-semibold text-purpleTheme-dark mb-4">Partner 2</h2>
                   <div className="space-y-2">
-                    <label htmlFor="profile2Name" className="text-sm font-medium text-blueTheme-dark">
+                    <label htmlFor="profile2Name" className="text-sm font-medium text-purpleTheme-dark">
                       Name
                     </label>
                     <Input
@@ -213,12 +251,12 @@ const SignupScreen = () => {
                       value={profile2Name}
                       onChange={(e) => setProfile2Name(e.target.value)}
                       required
-                      className="blue-gui-input w-full"
+                      className="border-purpleTheme-medium/50 focus:border-purpleTheme focus:ring-purpleTheme w-full"
                     />
                   </div>
                   <div className="mt-2 flex justify-center">
                     <div 
-                      className="h-16 w-16 rounded-full bg-blueTheme-light border-2 border-blueTheme flex items-center justify-center cursor-pointer"
+                      className="h-16 w-16 rounded-full bg-purpleTheme-light border-2 border-purpleTheme flex items-center justify-center cursor-pointer"
                       onClick={() => {
                         setActiveProfile(2);
                         setShowEmojiSelector(true);
@@ -234,7 +272,7 @@ const SignupScreen = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full blue-gui-button"
+              className="w-full bg-purpleTheme hover:bg-purpleTheme-hover text-white"
             >
               {step === 1
                 ? "Continue"
@@ -245,21 +283,21 @@ const SignupScreen = () => {
           </form>
         )}
 
-        {step === 1 && !showEmojiSelector && (
+        {step === 1 && !showEmojiSelector && !showEmojiCreator && (
           <div className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-blueTheme hover:text-blueTheme-hover">
+            <Link to="/login" className="font-medium text-purpleTheme hover:text-purpleTheme-hover">
               Sign in
             </Link>
           </div>
         )}
         
-        {step === 2 && !showEmojiSelector && (
+        {step === 2 && !showEmojiSelector && !showEmojiCreator && (
           <div className="mt-6 text-center text-sm text-gray-600">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="font-medium text-blueTheme hover:text-blueTheme-hover"
+              className="font-medium text-purpleTheme hover:text-purpleTheme-hover"
             >
               ← Back to Step 1
             </button>
