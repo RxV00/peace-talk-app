@@ -16,7 +16,7 @@ export const toast = ({ title, description, variant }: ToastProps) => {
 
 export const useToast = () => {
   // Create a mock toasts array to satisfy the Toaster component
-  const toasts: ToastT[] = [];
+  const toasts: any[] = [];
   
   return {
     toast: ({ title, description, variant }: ToastProps) => {
