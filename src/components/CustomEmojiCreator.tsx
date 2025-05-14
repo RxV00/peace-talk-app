@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
 import { Card, CardContent } from "./ui/card";
-import { Palette, User, ColorPicker, Smile } from "lucide-react";
+import { Palette, User, Smile } from "lucide-react";
 import { motion } from "framer-motion";
 
 type EmojiFeature = {
