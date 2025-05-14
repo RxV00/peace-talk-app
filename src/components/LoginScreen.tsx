@@ -5,6 +5,7 @@ import { useCouple } from "../context/CoupleContext";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { toast } from "../hooks/use-toast";
+import CustomEmojiSelector from "./CustomEmojiSelector";
 
 const LoginScreen = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showEmojiSelector, setShowEmojiSelector] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState("👤");
 
   // Redirect if already logged in
   React.useEffect(() => {
@@ -56,62 +59,92 @@ const LoginScreen = () => {
     }
   };
 
+  const handleEmojiSelect = (emoji: any) => {
+    if (typeof emoji === "string") {
+      setSelectedEmoji(emoji);
+    } else {
+      setSelectedEmoji(emoji.emoji);
+    }
+    setShowEmojiSelector(false);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purple-100 to-purple-200 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blueTheme-light to-white px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-blueTheme-medium/30">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <div 
+            className="mx-auto mb-4 w-16 h-16 rounded-full bg-blueTheme-light flex items-center justify-center text-3xl cursor-pointer border-2 border-blueTheme"
+            onClick={() => setShowEmojiSelector(true)}
+          >
+            {selectedEmoji}
+          </div>
+          <h1 className="text-3xl font-bold text-blueTheme-dark mb-2">Welcome back</h1>
           <p className="text-gray-600">Sign in to continue your journey</p>
         </div>
         
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+        {showEmojiSelector ? (
+          <div className="mb-6">
+            <CustomEmojiSelector 
+              onSelectEmoji={handleEmojiSelect}
+              selectedEmoji={selectedEmoji}
             />
+            <Button 
+              className="w-full mt-4 blue-gui-button"
+              onClick={() => setShowEmojiSelector(false)}
+            >
+              Done
+            </Button>
           </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                Password
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium text-blueTheme-dark">
+                Email
               </label>
-              <a href="#" className="text-sm text-purple-600 hover:text-purple-800">
-                Forgot password?
-              </a>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="blue-gui-input w-full"
+              />
             </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-            />
-          </div>
-          
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <label htmlFor="password" className="text-sm font-medium text-blueTheme-dark">
+                  Password
+                </label>
+                <a href="#" className="text-sm text-blueTheme hover:text-blueTheme-hover">
+                  Forgot password?
+                </a>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="blue-gui-input w-full"
+              />
+            </div>
+            
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full blue-gui-button"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </form>
+        )}
         
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-purple-600 hover:text-purple-800">
+          <Link to="/signup" className="font-medium text-blueTheme hover:text-blueTheme-hover">
             Create one now
           </Link>
         </div>
