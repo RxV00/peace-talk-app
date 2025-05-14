@@ -56,13 +56,13 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
-        // Add blue themed colors
-        blueTheme: {
-          light: '#E3F2FD',
-          DEFAULT: '#1EAEDB',
-          medium: '#0EA5E9',
-          dark: '#0C4A6E',
-          hover: '#33C3F0',
+        // Changed blue to purple theme
+        purpleTheme: {
+          light: '#D6BCFA',
+          DEFAULT: '#9b87f5',
+          medium: '#7E69AB',
+          dark: '#6E59A5',
+          hover: '#B794F4',
         }
       },
       borderRadius: {

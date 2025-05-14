@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCouple } from "../context/CoupleContext";
@@ -69,16 +70,16 @@ const LoginScreen = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blueTheme-light to-white px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-blueTheme-medium/30">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-purpleTheme-light to-white px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-purpleTheme-medium/30">
         <div className="text-center mb-6">
           <div 
-            className="mx-auto mb-4 w-16 h-16 rounded-full bg-blueTheme-light flex items-center justify-center text-3xl cursor-pointer border-2 border-blueTheme"
+            className="mx-auto mb-4 w-16 h-16 rounded-full bg-purpleTheme-light flex items-center justify-center text-3xl cursor-pointer border-2 border-purpleTheme"
             onClick={() => setShowEmojiSelector(true)}
           >
             {selectedEmoji}
           </div>
-          <h1 className="text-3xl font-bold text-blueTheme-dark mb-2">Welcome back</h1>
+          <h1 className="text-3xl font-bold text-purpleTheme-dark mb-2">Welcome back</h1>
           <p className="text-gray-600">Sign in to continue your journey</p>
         </div>
         
@@ -89,7 +90,7 @@ const LoginScreen = () => {
               selectedEmoji={selectedEmoji}
             />
             <Button 
-              className="w-full mt-4 blue-gui-button"
+              className="w-full mt-4 bg-purpleTheme hover:bg-purpleTheme-hover text-white"
               onClick={() => setShowEmojiSelector(false)}
             >
               Done
@@ -98,7 +99,7 @@ const LoginScreen = () => {
         ) : (
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-blueTheme-dark">
+              <label htmlFor="email" className="text-sm font-medium text-purpleTheme-dark">
                 Email
               </label>
               <Input
@@ -108,16 +109,16 @@ const LoginScreen = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="blue-gui-input w-full"
+                className="border border-purpleTheme-medium/50 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-purpleTheme w-full"
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between">
-                <label htmlFor="password" className="text-sm font-medium text-blueTheme-dark">
+                <label htmlFor="password" className="text-sm font-medium text-purpleTheme-dark">
                   Password
                 </label>
-                <a href="#" className="text-sm text-blueTheme hover:text-blueTheme-hover">
+                <a href="#" className="text-sm text-purpleTheme hover:text-purpleTheme-hover">
                   Forgot password?
                 </a>
               </div>
@@ -128,14 +129,14 @@ const LoginScreen = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="blue-gui-input w-full"
+                className="border border-purpleTheme-medium/50 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-purpleTheme w-full"
               />
             </div>
             
             <Button
               type="submit"
               disabled={loading}
-              className="w-full blue-gui-button"
+              className="w-full bg-purpleTheme text-white hover:bg-purpleTheme-hover transition-colors rounded-md px-4 py-2 font-medium"
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
@@ -144,7 +145,7 @@ const LoginScreen = () => {
         
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-blueTheme hover:text-blueTheme-hover">
+          <Link to="/signup" className="font-medium text-purpleTheme hover:text-purpleTheme-hover">
             Create one now
           </Link>
         </div>

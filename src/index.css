@@ -16,14 +16,14 @@
     --table-row: 0 0% 50%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 199 89% 48%;
+    --accent: 269 79% 75%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 199 89% 48%;
-    --primary: 199 89% 48%;
+    --ring: 269 79% 75%;
+    --primary: 269 79% 75%;
     --primary-foreground: 210 40% 98%;
     --radius: 0.5rem;
   }
@@ -80,17 +80,17 @@
   }
 }
 
-/* Old-style blue GUI classes */
-.blue-gui-card {
-  @apply bg-blueTheme-light border border-blueTheme-medium rounded-md shadow-md;
+/* Purple-style GUI classes */
+.purple-gui-card {
+  @apply bg-purpleTheme-light border border-purpleTheme-medium rounded-md shadow-md;
 }
 
-.blue-gui-button {
-  @apply bg-blueTheme text-white hover:bg-blueTheme-hover transition-colors rounded-md px-4 py-2 font-medium;
+.purple-gui-button {
+  @apply bg-purpleTheme text-white hover:bg-purpleTheme-hover transition-colors rounded-md px-4 py-2 font-medium;
 }
 
-.blue-gui-input {
-  @apply border border-blueTheme-medium/50 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blueTheme;
+.purple-gui-input {
+  @apply border border-purpleTheme-medium/50 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-purpleTheme;
 }
 
 /* Emoji selector styles */
@@ -99,13 +99,13 @@
 }
 
 .emoji-item {
-  @apply w-10 h-10 flex items-center justify-center text-xl cursor-pointer rounded hover:bg-blueTheme-light;
+  @apply w-10 h-10 flex items-center justify-center text-xl cursor-pointer rounded hover:bg-purpleTheme-light;
 }
 
 .emoji-item.selected {
-  @apply bg-blueTheme-light border border-blueTheme;
+  @apply bg-purpleTheme-light border border-purpleTheme;
 }
 
 .custom-emoji-creator {
-  @apply border border-dashed border-blueTheme p-3 rounded-md;
+  @apply border border-dashed border-purpleTheme p-3 rounded-md;
 }
